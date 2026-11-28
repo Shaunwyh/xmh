@@ -221,3 +221,5 @@ button:not(:disabled):active{transform:scale(.96)}
 @media(max-width:899px){.album-art{height:322px}.album-art[data-bedtime=true]{height:360px}.album-caption{margin:12px 0 14px}.library{margin-top:26px}.scene-stage{top:51px}[data-bedtime=true] .scene-stage{top:96px}.scene-stage .art-halo{width:230px;height:230px}.scene-identity{font-size:11px;padding:8px 12px;border-radius:14px}.bedtime-note{top:46px;left:13px;right:13px;padding:10px 11px;min-height:40px}.bedtime-note p{font-size:11px}}
 @media(max-width:360px){.album-art{height:300px}.album-art[data-bedtime=true]{height:340px}.scene-identity{font-size:10px}.bedtime-note{left:10px;right:10px}.bedtime-note p{font-size:10px}}
 @media(prefers-reduced-motion:reduce){.scene-identity,.scene-actor{animation:none!important}.album-art,.scene-stage{transition:none}}
+
+#share-story svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}

@@ -1,7 +1,7 @@
 import * as THREE from './vendor/three.module.js';
-import {initialChapter} from './castle-book-ui.js?v=castle-24';
-import {BOOKS,SPREADS} from './castle-book-stories.js?v=castle-24';
-import {createStoryScene} from './castle-book-scenes.js?v=castle-24';
+import {initialChapter} from './castle-book-ui.js?v=castle-26';
+import {BOOKS,SPREADS} from './castle-book-stories.js?v=castle-26';
+import {createStoryScene} from './castle-book-scenes.js?v=castle-26';
 const canvas=document.querySelector('#book-canvas'),host=document.querySelector('#book-stage'),card=document.querySelector('#album-art');
 const reduced=matchMedia('(prefers-reduced-motion: reduce)');
 let renderer;
@@ -153,14 +153,14 @@ function bendLeaf(p,direction){const pos=leafGeometry.attributes.position;const 
 }
 const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
 function fold(spread,p){for(const pop of spread.popups){pop.scale.y=pop.userData.restScale*Math.max(.025,1-p);pop.rotation.x=pop.userData.restRotX-p*Math.PI*.43;}}
-let lastFrame=0,raf=0,visible=true,night=document.documentElement.dataset.theme==='dark'||card.dataset.bedtime==='true',bedtime=card.dataset.bedtime==='true',tap=null,identityTimer;
+let lastFrame=0,raf=0,visible=true,night=document.documentElement.dataset.theme==='dark'||card.dataset.bedtime==='true',bedtime=card.dataset.bedtime==='true',tap=null;
 function setAppearance(){const n=night||SPREADS[current].night===true;card.dataset.night=String(n);key.color.set(n?'#fff0c9':'#fff2d4');key.intensity=n?2.6:3.4;ambient.color.set(n?'#e6e6cb':'#fff8e6');ambient.groundColor.set(n?'#596146':'#a4886b');ambient.intensity=n?1.35:2;rim.color.set(n?'#d9c28e':'#f6d3b5');renderer.toneMappingExposure=n?.96:1.15;spreads.forEach((s,i)=>{const page=SPREADS[i],isNight=night||page.night===true;s.sky.visible=!isNight&&(page.scene!=='rain'||page.phase===3);s.moon.visible=isNight;s.blanket.visible=bedtime&&page.scene==='goodnight';s.stars.forEach(p=>p.visible=isNight||page.scene==='star');});}
 function resize(){const w=host.clientWidth,h=host.clientHeight;renderer.setSize(w,h,false);const height=Math.max(6.9,10.5/(w/h)),span=height*w/h;camera.left=-span/2;camera.right=span/2;camera.top=height/2;camera.bottom=-camera.top;camera.updateProjectionMatrix();render(performance.now());}
 new ResizeObserver(resize).observe(host);
 window.addEventListener('book-appearance',e=>{night=e.detail.night;bedtime=e.detail.bedtime;setAppearance();resize();});
 function turnTo(target,{switchStory=false}={}){if(transition||target===current||!validTarget(target,switchStory))return false;
  ensureSpread(target);
- document.querySelector('#book-identity').hidden=true;tap=null;
+ tap=null;
  if(reduced.matches||!visible){spreads[current].g.visible=false;current=target;spreads[current].g.visible=true;leftPaper.material.map=pageMaps[current][0];rightPaper.material.map=pageMaps[current][1];setAppearance();announce(current);render(performance.now());return true;}
  transition={from:current,to:target,direction:target>current?1:-1,start:performance.now(),switched:false};
  leafMaterial.map=pageMaps[target][target>current?1:0];leafMaterial.needsUpdate=true;return true;
@@ -173,7 +173,6 @@ function turnFrame(now){if(!transition)return;const tr=transition,p=Math.min(1,(
  leaf.visible=p>.16&&p<.87;bendLeaf(ease(Math.max(0,Math.min(1,(p-.16)/.71))),tr.direction);
  if(p===1){fold(outgoing,0);fold(incoming,0);outgoing.g.visible=false;leaf.visible=false;transition=null;}
 }
-function showIdentity(actor){const box=document.querySelector('#book-identity');box.textContent=actor==='cat'?'我是善逸':actor==='princess'?'我是迷湖公主':'这里是迷湖公主的蛋糕城堡';box.hidden=false;clearTimeout(identityTimer);identityTimer=setTimeout(()=>box.hidden=true,1500);}
 const raycaster=new THREE.Raycaster(),point=new THREE.Vector2();
 function tapAt(x,y){if(transition)return;const r=canvas.getBoundingClientRect();point.set((x-r.left)/r.width*2-1,-(y-r.top)/r.height*2+1);raycaster.setFromCamera(point,camera);
  const s=spreads[current];let actor='all';for(const hit of raycaster.intersectObjects([s.cat,s.princess,s.castle],true)){
@@ -185,7 +184,7 @@ function tapAt(x,y){if(transition)return;const r=canvas.getBoundingClientRect();
  }
  act(actor);
 }
-function act(actor){if(transition)return;tap={actor,start:performance.now()};if(actor!=='all')showIdentity(actor);document.querySelector('#gesture-hint').classList.add('used');render(performance.now());}
+function act(actor){if(transition)return;tap={actor,start:performance.now()};document.querySelector('#gesture-hint').classList.add('used');render(performance.now());}
 window.addEventListener('book-character',e=>act(e.detail.actor));
 let pointer=null;
 canvas.addEventListener('pointerdown',e=>{if(e.button!==0)return;pointer={id:e.pointerId,x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId);});

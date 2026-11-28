@@ -1,6 +1,6 @@
-import {showDialog} from './castle-dialogs.js?v=castle-24';
-import {clockState} from './castle-clock.js?v=castle-24';
-import {BOOKS,SPREADS,startOfBook} from './castle-book-stories.js?v=castle-24';
+import {showDialog} from './castle-dialogs.js?v=castle-26';
+import {clockState} from './castle-clock.js?v=castle-26';
+import {BOOKS,SPREADS,startOfBook} from './castle-book-stories.js?v=castle-26';
 
 const card=document.getElementById('album-art'),sheet=document.getElementById('book-library');
 const storageKey='castle-book-reading-v1';

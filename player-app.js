@@ -1,4 +1,4 @@
-import {showDialog} from './castle-dialogs.js?v=castle-24';
+import {showDialog} from './castle-dialogs.js?v=castle-26';
 import {isRecentUpload, formatLibraryTimestamp, RECENT_UPLOAD_MS} from './castle-time.js?v=castle-19';
 
 (() => {
@@ -11,6 +11,7 @@ import {isRecentUpload, formatLibraryTimestamp, RECENT_UPLOAD_MS} from './castle
   const audio = $('audio'), player = $('player-sheet'), reader = $('player-reader');
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   const storageKey = 'little-castle-player-v1', themeKey = 'little-castle-theme';
+  const sharedStoryId = document.querySelector('meta[name="castle-shared-story"]')?.content;
   const names = {sequential:'顺序播放',repeat:'列表循环',single:'单曲循环',random:'随机播放'};
   const modeIcons = {sequential:'order',repeat:'repeat',single:'repeat-one',random:'shuffle'};
   let saved = {}; try {saved = JSON.parse(localStorage.getItem(storageKey) || '{}');} catch (_) {}
@@ -154,6 +155,23 @@ import {isRecentUpload, formatLibraryTimestamp, RECENT_UPLOAD_MS} from './castle
     if(!player.open){if(push&&!location.hash.startsWith('#listen='))history.pushState({castlePlayer:true},'','#listen='+encodeURIComponent(current.id));showDialog(player);document.body.classList.add('player-open');}
     requestAnimationFrame(()=>refreshReader(playbackPosition(),true));
   }
+  async function shareCurrentStory() {
+    if(!current)return;
+    const url=new URL('share/'+encodeURIComponent(current.id)+'/',document.baseURI).href;
+    const excerpt=(current.cues||[]).slice(0,3).map(c=>c.text).join('').slice(0,150);
+    if(navigator.share&&!/MicroMessenger/i.test(navigator.userAgent)) {
+      try {await navigator.share({title:current.title,text:excerpt,url});return;}
+      catch(e) {if(e.name==='AbortError')return;}
+    }
+    let copied=false;
+    try {await navigator.clipboard.writeText(url);copied=true;} catch (_) {}
+    if(!copied) {
+      const field=document.createElement('textarea');field.value=url;field.setAttribute('readonly','');field.style.cssText='position:fixed;left:-9999px;top:0;opacity:0';document.body.append(field);field.select();
+      try {copied=document.execCommand('copy');} catch (_) {} field.remove();
+    }
+    notify(copied?'这篇内容的专属链接已复制，可以发给朋友了。':'请复制这个故事链接：'+url);
+  }
+  $('share-story').addEventListener('click',shareCurrentStory);
   player.addEventListener('close',() => {
     document.body.classList.remove('player-open');if(closingFromHistory){closingFromHistory=false;return;}
     if(location.hash.startsWith('#listen=')){if(history.state?.castlePlayer)history.back();else history.replaceState(null,'',location.pathname+location.search);}
@@ -224,6 +242,6 @@ import {isRecentUpload, formatLibraryTimestamp, RECENT_UPLOAD_MS} from './castle
   const letters=tracks.filter(t=>t.category==='letter').length,stories=tracks.length-letters,minutes=Math.round(tracks.reduce((sum,t)=>sum+t.duration,0)/60);
   document.querySelector('.album-caption>span').textContent=letters+' 封信件 · '+stories+' 个故事';$('total-duration').textContent=Math.floor(minutes/60)+' 小时 '+minutes%60+' 分钟';
   document.querySelectorAll('[data-category]>span').forEach(span=>span.textContent=span.parentElement.dataset.category==='all'?tracks.length:span.parentElement.dataset.category==='letter'?letters:stories);
-  queue=eligible().map(t=>t.id);const linked=location.hash.startsWith('#listen=')?linkedTrack():null;
-  select(linked||tracks.find(t=>t.id===saved.current)||eligible()[0]);resetShuffle();updateSort();updateSpeed();updateVolume();setReading(reading);render();updateMode();updatePlay();refreshFreshness();if(linked)openPlayer(false);
+  queue=eligible().map(t=>t.id);const linked=location.hash.startsWith('#listen=')?linkedTrack():null,shared=sharedStoryId?tracks.find(t=>t.id===sharedStoryId):null;
+  select(linked||shared||tracks.find(t=>t.id===saved.current)||eligible()[0]);resetShuffle();updateSort();updateSpeed();updateVolume();setReading(reading);render();updateMode();updatePlay();refreshFreshness();if(linked||shared)openPlayer(false);
 })();
